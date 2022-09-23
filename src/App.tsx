@@ -1,8 +1,10 @@
 import React from 'react'
 
+import './styles/main.css'
+
 function App () {
   return (
-    <h1>Hello World</h1>
+    <h1 className="text-lg">Hello World</h1>
   )
 }
 
