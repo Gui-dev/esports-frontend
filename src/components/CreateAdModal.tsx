@@ -1,10 +1,29 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
-import { GameController } from 'phosphor-react'
+import * as Checkbox from '@radix-ui/react-checkbox'
+import { Check, GameController } from 'phosphor-react'
 
 import { Input } from './Form/Input'
+import { InputSelect } from './Form/Select'
+import { api } from '../services/api'
+
+type GamesProps = {
+  id: string
+  title: string
+  bannerUrl: string
+}
 
 export const CreateAdModal = () => {
+  const [games, setGames] = useState<GamesProps[]>([])
+
+  useEffect(() => {
+    const loadGames = async () => {
+      const { data } = await api.get('/games')
+      setGames(data)
+    }
+    loadGames()
+  }, [])
+
   return (
     <Dialog.Portal>
       <Dialog.Overlay className="fixed bg-black/60 inset-0" />
@@ -21,11 +40,7 @@ export const CreateAdModal = () => {
             <label htmlFor="game" className="font-semibold">
               Qual o game?
             </label>
-            <Input
-              type="text"
-              id="game"
-              placeholder="Selecione o game que deseja jogar"
-            />
+            <InputSelect games={games} />
           </div>
 
           <div className="flex flex-col gap-2">
@@ -121,8 +136,15 @@ export const CreateAdModal = () => {
             </div>
           </div>
 
-          <div className="mt-2 gap-2 text-sm">
-            <Input type="checkbox" /> Costumo me conectar ao chat de voz
+          <div className="flex items-center justify-center gap-2 mt-2 text-sm">
+            <Checkbox.Root
+              className="p-1 h-6 w-6 bg-zinc-900 rounded"
+            >
+              <Checkbox.Indicator>
+                <Check className="h-4 w-4 text-emerald-400" />
+              </Checkbox.Indicator>
+            </Checkbox.Root>
+            Costumo me conectar ao chat de voz
           </div>
 
           <footer className="flex justify-end gap-4 mt-4">
