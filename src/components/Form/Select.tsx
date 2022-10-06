@@ -8,14 +8,14 @@ type GamesProps = {
   bannerUrl: string
 }
 
-type InputSelectProps = {
+type InputSelectProps = Select.SelectProps & {
   games: GamesProps[]
 }
 
-export const InputSelect = ({ games }: InputSelectProps) => {
+export const InputSelect = ({ games, ...rest }: InputSelectProps) => {
   return (
-    <div className="flex py-3 px-4 bg-zinc-900 rounded">
-      <Select.Root>
+    <div className="flex py-3 px-4 bg-zinc-900 rounded z-10">
+      <Select.Root {...rest}>
         <Select.Trigger className="flex flex-1 items-center justify-between">
           <Select.Value className="placeholder:text-zinc-500" placeholder="Selecione o game que deseja jogar" />
           <Select.Icon>
@@ -24,7 +24,7 @@ export const InputSelect = ({ games }: InputSelectProps) => {
         </Select.Trigger>
 
         <Select.Portal className=" w-full bg-zinc-700">
-          <Select.Content className="">
+          <Select.Content className="z-10">
             <Select.Viewport>
               <Select.Group>
 
@@ -32,7 +32,7 @@ export const InputSelect = ({ games }: InputSelectProps) => {
                   return (
                     <Select.Item
                       key={game.id}
-                      value={game.title}
+                      value={game.id}
                       className="text-white py-2 px-4 cursor-pointer hover:bg-violet-500"
                     >
                       <div className="flex flex-row items-center justify-between">
