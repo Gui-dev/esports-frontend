@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { FormEvent, useEffect, useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import * as Checkbox from '@radix-ui/react-checkbox'
 import * as ToggleGroup from '@radix-ui/react-toggle-group'
@@ -17,6 +17,7 @@ type GamesProps = {
 export const CreateAdModal = () => {
   const [games, setGames] = useState<GamesProps[]>([])
   const [weekDays, setWeekDays] = useState<string[]>([])
+  const [useVoiceChannel, setUseVoiceChannel] = useState(false)
 
   useEffect(() => {
     const loadGames = async () => {
@@ -26,29 +27,58 @@ export const CreateAdModal = () => {
     loadGames()
   }, [])
 
+  const handleCreateAd = async (event: FormEvent) => {
+    event.preventDefault()
+    const formData = new FormData(event.target as HTMLFormElement)
+    const data = Object.fromEntries(formData)
+
+    if (!data.name) {
+      return
+    }
+
+    try {
+      await api.post(`/games/${data.game}/ads`, {
+        name: data.name,
+        yearsPlaying: Number(data.yearsPlaying),
+        discord: data.discord,
+        weekDays: weekDays.map(Number),
+        hourStart: data.hourStart,
+        hourEnd: data.hourEnd,
+        useVoiceChannel
+      })
+      alert('Anúncio criado com sucesso')
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   return (
     <Dialog.Portal>
       <Dialog.Overlay className="fixed bg-black/60 inset-0" />
       <Dialog.Content className="
         fixed top-1/2 left-1/2 text-white px-10 py-8 w-[480px] bg-[#2A2634]
-        rounded-lg -translate-x-1/2 -translate-y-1/2 shadow-lg"
+        rounded-lg -translate-x-1/2 -translate-y-1/2 shadow-lg  z-10"
       >
         <Dialog.Title className="font-black text-3xl text-white">
           Publique um anúncio
         </Dialog.Title>
 
-        <form className="flex flex-col gap-4 mt-6">
+        <form
+          className="flex flex-col gap-4 mt-6"
+          onSubmit={handleCreateAd}
+        >
           <div className="flex flex-col gap-2">
             <label htmlFor="game" className="font-semibold">
               Qual o game?
             </label>
-            <InputSelect games={games} />
+            <InputSelect name="game" games={games} />
           </div>
 
           <div className="flex flex-col gap-2">
             <label htmlFor="name" className="font-semibold">Seu nome (ou nickname)</label>
             <Input
               type="text"
+              name="name"
               id="name"
               placeholder="Como te chamam dentro do game?"
             />
@@ -59,6 +89,7 @@ export const CreateAdModal = () => {
               <label htmlFor="yearsPlaying" className="font-semibold">Joga há quantos anos?</label>
               <Input
                 type="number"
+                name="yearsPlaying"
                 id="yearsPlaying"
                 placeholder="Tudo bem ser ZERO"
               />
@@ -67,6 +98,7 @@ export const CreateAdModal = () => {
               <label htmlFor="discord" className="font-semibold">Qual é o seu Discord?</label>
               <Input
                 type="text"
+                name="discord"
                 id="discord"
                 placeholder="Usuário#0000"
               />
@@ -160,11 +192,13 @@ export const CreateAdModal = () => {
               <div className="grid grid-cols-2 gap-2">
                 <Input
                   type="time"
+                  name="hourStart"
                   id="hourStart"
                   placeholder="De"
                 />
                 <Input
                   type="time"
+                  name="hourEnd"
                   id="hourEnd"
                   placeholder="Até"
                 />
@@ -175,6 +209,14 @@ export const CreateAdModal = () => {
           <label className="flex items-center justify-center gap-2 mt-2 text-sm">
             <Checkbox.Root
               className="p-1 h-6 w-6 bg-zinc-900 rounded"
+              checked={useVoiceChannel}
+              onCheckedChange={(checked) => {
+                if (checked === true) {
+                  setUseVoiceChannel(true)
+                } else {
+                  setUseVoiceChannel(false)
+                }
+              }}
             >
               <Checkbox.Indicator>
                 <Check className="h-4 w-4 text-emerald-400" />
